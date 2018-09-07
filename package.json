@@ -2,23 +2,19 @@
   "name": "egg-born-module-a-mde",
   "version": "1.0.0",
   "title": "a-mde",
-  "eggBornModule":
-  {
-    "dependencies":
-    {
+  "eggBornModule": {
+    "dependencies": {
       "a-instance": "1.0.0"
     }
   },
   "description": "",
-  "scripts":
-  {
+  "scripts": {
     "build:front": "node build/front/build.js",
     "build:backend": "node build/backend/build.js",
     "lint": "eslint front backend"
   },
   "author": "zhennann",
-  "devDependencies":
-  {
+  "devDependencies": {
     "babel-eslint": "^8.0.2",
     "eslint": "^4.19.0",
     "eslint-config-egg": "^5.1.1",
@@ -55,9 +51,22 @@
     "vue-style-loader": "^4.1.0",
     "vue-template-compiler": "^2.5.16"
   },
-  "dependencies":
-  {
+  "dependencies": {
     "require3": "^1.0.1",
-    "extend2": "^1.0.0"
+    "extend2": "^1.0.0",
+    "highlight.js": "^9.12.0",
+    "incremental-dom": "^0.5.1",
+    "markdown-it": "^8.3.1",
+    "markdown-it-anchor": "^5.0.2",
+    "markdown-it-emoji": "^1.3.0",
+    "markdown-it-footnote": "^3.0.1",
+    "markdown-it-for-inline": "^0.1.1",
+    "markdown-it-incremental-dom": "^1.0.0",
+    "markdown-it-ins": "^2.0.0",
+    "markdown-it-mark": "^2.0.0",
+    "markdown-it-sub": "^1.0.0",
+    "markdown-it-sup": "^1.0.0",
+    "markdown-it-task-lists": "^2.0.1",
+    "transliteration": "^1.6.6"
   }
 }
