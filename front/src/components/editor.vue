@@ -1,7 +1,7 @@
 <template>
   <div class="eb-mde">
     <!-- Toolbar -->
-    <div class="editor-toolbar" :class="{
+    <div v-if="!noToolbar" class="editor-toolbar" :class="{
         'is-side': isSideBySide,
         'is-readmode': isReadmode
       }">
@@ -23,15 +23,20 @@
     <!-- Preview -->
     <div class="editor-preview" ref="preview" :class="{
         'is-side': isSideBySide,
-        'is-readmode': isReadmode
+        'is-readmode': isReadmode,
+        'no-toolbar': noToolbar,
       }">
     </div>
     <!-- Toc -->
-    <div class="toc-preview" v-show="showToc">
+    <div class="toc-preview" v-show="showToc" :class="{
+        'no-toolbar': noToolbar,
+      }">
       <toc :list="tableOfContent" v-if="tableOfContent.length > 0" />
     </div>
     <!-- Html Code -->
-    <div class="html-code-preview" v-show="showHtmlCode">
+    <div class="html-code-preview" v-show="showHtmlCode" :class="{
+        'no-toolbar': noToolbar,
+      }">
       <textarea readonly v-text="htmlCode"></textarea>
     </div>
   </div>
@@ -58,6 +63,10 @@ export default {
     value: {
       type: String,
     },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -70,19 +79,36 @@ export default {
       words: 0,
       slugCache: {},
       tableOfContent: [],
-      isSideBySide: true,
+      isSideBySide: false,
       isReadmode: false,
       showToc: false,
       showHtmlCode: false,
       htmlCode: '',
       orderNum: 1,
       lastFocusRow: 0,
+      noToolbar: false,
     };
   },
   created() {
     this.$nextTick(() => {
+
+      // basic
       this.createToolbar();
       this.createEditor();
+
+      // editable
+      if (this.editable) {
+        if (this.$view.size !== 'small') {
+          this.toggleSideBySide();
+        }
+        this.noToolbar = false;
+      } else {
+        this.toggleReadmode();
+        if (this.$view.size !== 'small') {
+          this.toggleTocPreview();
+        }
+        this.noToolbar = true;
+      }
     });
   },
   beforeDestroy() {
@@ -121,16 +147,29 @@ export default {
       // custom inline style
       this.markdownInline();
 
+      // insert content
+      this.editSession.setValue(this.value);
+
       // editor event
       this.editorEvent();
 
       // editor keybindings
       this.editorKeybindings();
 
-      // insert content
-      this.editSession.setValue(this.value);
+      // change
+      this.onChange(this.value);
 
       this.editor.focus();
+    },
+    onChange(content) {
+      this.slugCache = {};
+      this.tableOfContent = [];
+      this.lines = this.editSession.getLength();
+      this.words = content.replace(/\s*/g, '').length;
+      IncrementalDOM.patch(
+        this.$refs.preview,
+        markdown.renderToIncrementalDOM(content)
+      );
     },
     /*
      * listen editor event
@@ -139,14 +178,8 @@ export default {
       // listen editor 'change' event and render markdown
       this.editSession.on('change', this.$meta.util.debounce(() => {
         const content = this.editSession.getValue();
-        this.slugCache = {};
-        this.tableOfContent = [];
-        this.lines = this.editSession.getLength();
-        this.words = content.replace(/\s*/g, '').length;
-        IncrementalDOM.patch(
-          this.$refs.preview,
-          markdown.renderToIncrementalDOM(content)
-        );
+        this.$emit('change', content);
+        this.onChange(content);
       }, 300));
 
       let editorScroll = false;
