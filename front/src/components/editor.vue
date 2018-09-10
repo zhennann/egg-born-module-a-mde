@@ -18,7 +18,7 @@
       </div>
     </div>
     <!-- Edit -->
-    <div class="editor is-side" ref="editor">
+    <div class="editor" ref="editor">
     </div>
     <!-- Preview -->
     <div class="editor-preview" ref="preview" :class="{
@@ -211,6 +211,11 @@ export default {
         const lineHeight = this.editor.renderer.lineHeight;
         const scrollTop = (this.editSession.getScreenLength() * lineHeight - clientHeight) * ratio;
         if (scrollTop > 0) this.editSession.setScrollTop(scrollTop);
+      });
+
+      // click
+      this.$$('.ace_content').click(() => {
+        this.editor.focus();
       });
     },
     /*
